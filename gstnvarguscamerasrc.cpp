@@ -638,20 +638,38 @@ bool StreamConsumer::threadExecute(GstNvArgusCameraSrc *src)
         ORIGINATE_ERROR("IImageNativeBuffer not supported by Image.");
       }
 
-      static const guint64 ground_clk = iFrame->getTime();;
+      // static const guint64 ground_clk = iFrame->getTime();;
+
+      // if (!src->silent)
+      // {
+      //   guint64 frame_timestamp = iFrame->getTime() - ground_clk;
+      //   guint64 millisec_timestamp = ((frame_timestamp % (1000000000)))/1000000;
+      //   CONSUMER_PRINT("Acquired Frame: %llu, time sec %llu msec %llu\n",
+      //              static_cast<unsigned long long>(iFrame->getNumber()),
+      //              static_cast<unsigned long long>(frame_timestamp / (1000000000)),
+      //              static_cast<unsigned long long>(millisec_timestamp));
+      // }
+
+      src->frameInfo->frameNum = iFrame->getNumber();
+      // src->frameInfo->frameTime = iFrame->getTime();
+
+      // pass the sensor timestamp instead 
+      IArgusCaptureMetadata *iArgusCaptureMetadata = interface_cast<IArgusCaptureMetadata>(frame);
+      if (!iArgusCaptureMetadata)
+          ORIGINATE_ERROR("Failed to get IArgusCaptureMetadata interface.");
+      CaptureMetadata *metadata = iArgusCaptureMetadata->getMetadata();
+      ICaptureMetadata *iMetadata = interface_cast<ICaptureMetadata>(metadata);
+      if (!iMetadata)
+          ORIGINATE_ERROR("Failed to get ICaptureMetadata interface.");
 
       if (!src->silent)
       {
-        guint64 frame_timestamp = iFrame->getTime() - ground_clk;
-        guint64 millisec_timestamp = ((frame_timestamp % (1000000000)))/1000000;
-        CONSUMER_PRINT("Acquired Frame: %llu, time sec %llu msec %llu\n",
+        CONSUMER_PRINT("Sensor %d, Frame %llu, Timestamp: %llu\n", src->sensor_id,
                    static_cast<unsigned long long>(iFrame->getNumber()),
-                   static_cast<unsigned long long>(frame_timestamp / (1000000000)),
-                   static_cast<unsigned long long>(millisec_timestamp));
+                   static_cast<unsigned long long>(iMetadata->getSensorTimestamp()/1000000));
       }
 
-      src->frameInfo->frameNum = iFrame->getNumber();
-      src->frameInfo->frameTime = iFrame->getTime();
+      src->frameInfo->frameTime = iMetadata->getSensorTimestamp(); 
 
       g_mutex_lock (&src->argus_buffers_queue_lock);
       g_queue_push_tail (src->argus_buffers, (src->frameInfo));

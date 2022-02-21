@@ -39,6 +39,7 @@ INCLUDES += -I./ -I../
 
 # Include jetson_mm_api include path
 INCLUDES += -I/usr/src/jetson_multimedia_api/include/
+INCLUDES += -I/usr/src/jetson_multimedia_api/argus/include/
 INCLUDES += -I/usr/src/jetson_multimedia_api/argus/samples/utils/
 
 PKGS := gstreamer-1.0 \

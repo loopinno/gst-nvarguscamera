@@ -784,6 +784,7 @@ static bool execute(int32_t cameraIndex,
       else
         iStreamSettings->setPixelFormat(PIXEL_FMT_YCbCr_420_888);
       iStreamSettings->setResolution(streamSize);
+      iStreamSettings->setMetadataEnable(true);
     }
     if (src->streamSettings.get() == NULL)
       ORIGINATE_ERROR("Failed to get streamSettings");
@@ -1706,6 +1707,9 @@ consumer_thread (gpointer src_base)
       if (gst_mini_object_is_writable(miniobj))
         gst_mini_object_set_qdata (miniobj,
              gst_buffer_metadata_quark, &((GstNVArgusMemory *)mem)->auxData, NULL);
+
+      // pass the timestamp to app 
+      GST_BUFFER_PTS(buffer) = consumerFrameInfo->frameTime;
 
       if (consumerFrameInfo->fd == 0)
       {

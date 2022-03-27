@@ -784,6 +784,7 @@ static bool execute(int32_t cameraIndex,
       else
         iStreamSettings->setPixelFormat(PIXEL_FMT_YCbCr_420_888);
       iStreamSettings->setResolution(streamSize);
+      // iStreamSettings->setMode(EGL_STREAM_MODE_FIFO);
       iStreamSettings->setMetadataEnable(true);
     }
     if (src->streamSettings.get() == NULL)
